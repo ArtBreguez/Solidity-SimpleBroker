@@ -115,6 +115,7 @@ contract ERC20Token is Ownable {
     /// @param _from Address that tokens will be burned
     /// @param _amount Amount of tokens that will be burned
     function burn(address _from, uint256 _amount) external onlyOwner returns(bool success){
+        require(_from != address(0), "Address cannot be zero");
         uint256 balance = balanceOf[_from];
         require(balance >= _amount, "Cannot burn more than the address has");
         balanceOf[_from] -= _amount;
