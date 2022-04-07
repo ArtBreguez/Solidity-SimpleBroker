@@ -14,11 +14,11 @@ contract ERC20Token {
     /// @notice Track the amount of tokens an address can spend on behalf the owner of the tokens
     mapping(address => mapping(address => uint256)) public allowance;
 
-    string public name;
-    string public symbol;
-    uint8 public decimals = 18;
-
-    uint256 public currentSupply = 1000000 * (uint256(10) ** decimals);
+    string private name;
+    string private symbol;
+    uint8 private decimals = 18;
+    uint256 private totalSupply = 1000000 ether;
+    uint256 private currentSupply = 100 * (uint256(10) ** decimals);
 
     /// @notice Emit an event when a transfer is made
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -33,6 +33,30 @@ contract ERC20Token {
         emit Transfer(address(0), msg.sender, currentSupply);
     }
 
+    /// @notice Show the token name
+    function tokenName() public view returns(string memory) {
+        return name;
+    }
+
+    /// @notice Show the token symbol
+    function tokenSymbol() public view returns(string memory) {
+        return symbol;
+    }
+
+    /// @notice Show the token number of decimals
+    function tokenDecimals() public view returns(uint8) {
+        return decimals;
+    }
+
+    /// @notice Show the token current supply
+    function tokenCurrentSupply() public view returns(uint256) {
+        return currentSupply;
+    }
+
+    /// @notice Show the token total supply
+    function tokenTotalSupply() public view returns (uint256) {
+        return totalSupply;
+    }
     /// @notice Transfer user tokens to an address
     /// @param _to The account that tokens will be transfered
     /// @param _value The amount of tokens in (arrumar isso!!!)
