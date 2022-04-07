@@ -2,12 +2,14 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
 /// @title ERC20 Simple Token
 /// @author Arthur Gonçalves Breguez
 /// @notice Use this contract only to simulate porpuses
 
 
-contract ERC20Token {
+contract ERC20Token is Ownable {
    
     /// @notice Track amount of tokens of each account
     mapping (address => uint256) public balanceOf;   
@@ -24,6 +26,11 @@ contract ERC20Token {
     event Transfer(address indexed from, address indexed to, uint256 value);
     /// @notice Emit an event when an approval for allowance is made
     event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    modifier mintable(uint256 amount) {
+        require(amount+currentSupply <= totalSupply);
+        _;
+    }
 
     /// @notice Transfer all inicial supply to the token creator
     constructor(string memory _name, string memory _symbol) {
@@ -62,7 +69,7 @@ contract ERC20Token {
     /// @param _value The amount of tokens in (arrumar isso!!!)
     /// @return success If tokens has been transfered
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        require(balanceOf[msg.sender] >= _value);
+        require(balanceOf[msg.sender] >= _value, "Not enough tokens!");
         balanceOf[msg.sender] -= _value;  
         balanceOf[_to] += _value;          
         emit Transfer(msg.sender, _to, _value);
@@ -84,12 +91,35 @@ contract ERC20Token {
     /// @param _value Amount of tokens to be transfered
     /// @return success If tokens has been transfered on behalf of the owner
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        require(_value <= balanceOf[_from]);
-        require(_value <= allowance[_from][msg.sender]);
+        require(_value <= balanceOf[_from], "Not enought balance!");
+        require(_value <= allowance[_from][msg.sender], "You don't have the permission to spend this amount of tokens");
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
         allowance[_from][msg.sender] -= _value;
         emit Transfer(_from, _to, _value);
+        return true;
+    }
+
+    /// @notice Mint tokens to an account
+    /// @param _to Address that tokens will be minted
+    /// @param _amount Amount of tokens that will be minted
+    function mint(address _to, uint256 _amount) external onlyOwner mintable(_amount) returns (bool success){
+        require(_to != address(0), "Cannot mint to the zero address");
+        currentSupply += _amount;
+        balanceOf[_to] += _amount;
+        emit Transfer(address(0), _to, _amount);
+        return true;
+    }
+    
+    /// @notice Burn tokens from an account
+    /// @param _from Address that tokens will be burned
+    /// @param _amount Amount of tokens that will be burned
+    function burn(address _from, uint256 _amount) external onlyOwner returns(bool success){
+        uint256 balance = balanceOf[_from];
+        require(balance >= _amount, "Cannot burn more than the address has");
+        balanceOf[_from] -= _amount;
+        currentSupply -= _amount;
+        emit Transfer(_from, address(0), _amount);
         return true;
     }
 }
