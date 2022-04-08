@@ -1,4 +1,6 @@
-pragma solidity ^0.4.21;
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
 
 interface IERC20Token {
     function balanceOf(address owner) external returns (uint256);
@@ -14,6 +16,11 @@ contract TokenSale {
     uint256 public tokensSold;
 
     event Sold(address indexed buyer, uint256 amount);
+
+    modifier safeMath(uint256 numberOfTokens, uint256 price) {
+        safeMultiply(numberOfTokens, price);
+        _;
+    }
 
     constructor (IERC20Token _tokenContract, uint256 _price) public {
         owner = msg.sender;
@@ -32,18 +39,19 @@ contract TokenSale {
         }
     }
 
-    function buyTokens(uint256 numberOfTokens) public payable {
-        require(msg.value == safeMultiply(numberOfTokens, price), "O valor enviado não é compativel com a quantidade de tokens que se deseja comprar");
+    function buyTokens(uint256 numberOfTokens) public payable safeMath(numberOfTokens, price) {
+        //require(msg.value == safeMultiply(numberOfTokens, price), "O valor enviado não é compativel com a quantidade de tokens que se deseja comprar");
+        IERC20Token tokenContractBalance = IERC20Token(tokenContract);
+        //uint256 balance = tokenContractBalance.balanceOf(this);
+        uint256 balance = tokenContractBalance.balanceOf(address(this));
+        uint256 scaledAmount = safeMultiply(numberOfTokens, uint256(10) ** tokenContract.decimals());
 
-        uint256 scaledAmount = safeMultiply(numberOfTokens,
-            uint256(10) ** tokenContract.decimals());
-
-        require(tokenContract.balanceOf(this) >= scaledAmount, "O contrato não tem tokens suficientes");
+        //require(tokenContractBalance.balanceOf(this) >= scaledAmount);
 
         emit Sold(msg.sender, numberOfTokens);
         tokensSold += numberOfTokens;
 
-        require(tokenContract.transfer(msg.sender, scaledAmount), "Transação não deu certo");
+        require(tokenContract.transfer(msg.sender, scaledAmount));
     }
 
     function endSale() public {
@@ -55,7 +63,7 @@ contract TokenSale {
         msg.sender.transfer(address(this).balance);
     }
 
-    function showContractTokenBalance() external view returns(uint256) {
+    function showContractTokenBalance() external returns(uint256) {
         return tokenContract.balanceOf(this);
     }
 }
