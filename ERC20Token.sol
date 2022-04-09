@@ -12,9 +12,9 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 contract ERC20Token is Ownable {
    
     /// @notice Track amount of tokens of each account
-    mapping (address => uint256) public balanceOf;   
+    mapping (address => uint256) private balanceOf;   
     /// @notice Track the amount of tokens an address can spend on behalf the owner of the tokens
-    mapping(address => mapping(address => uint256)) public allowance;
+    mapping(address => mapping(address => uint256)) private allowance;
 
     string private name;
     string private symbol;
@@ -63,6 +63,21 @@ contract ERC20Token is Ownable {
     /// @notice Show the token total supply
     function tokenTotalSupply() public view returns (uint256) {
         return totalSupply;
+    }
+
+    /// @notice Show the ammount of tokens of the account
+    /// @param _address Account address
+    /// @return Address token balance
+    function accountBalance(address _address) external view returns(uint256) {
+        return balanceOf[_address];
+    }
+
+    /// @notice Show the amount of tokens the account can spend on behalf of the owner
+    /// @param _owner The owner of the tokens account
+    /// @param _spender The spender of the tokens account
+    /// @return The amount of tokens the account can spend
+    function accountAllowance(address _owner, address _spender) external view returns(uint256) {
+        return allowance[_owner][_spender];
     }
     /// @notice Transfer user tokens to an address
     /// @param _to The account that tokens will be transfered
