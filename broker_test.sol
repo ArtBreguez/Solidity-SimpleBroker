@@ -39,7 +39,7 @@ contract testSuite {
         Assert.equal(msg.value, 100, "Value should be 100");
         broker.buyTokens{gas: 800000, value:100}(100);
         Assert.equal(token.accountBalance(address(broker)), 0, "Invalid balance");
-        Assert.equal(token.accountBalance(address(acc0)), 100000000000000000000, "Not the same amount!");
+        Assert.equal(token.accountBalance(acc0), 100000000000000000000, "Not the same amount!");
     }
 
     //function checkSuccess2() public pure returns (bool) {
