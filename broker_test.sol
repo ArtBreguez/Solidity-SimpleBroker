@@ -9,8 +9,8 @@ import "remix_tests.sol";
 // Although it may fail compilation in 'Solidity Compiler' plugin
 // But it will work fine in 'Solidity Unit Testing' plugin
 import "remix_accounts.sol";
-import "../broker.sol";
-import "../ERC20Token.sol";
+import "/broker.sol";
+import "/ERC20Token.sol";
 
 // File name has to end with '_test.sol', this file can contain more than one testSuite contracts
 contract testSuite {
@@ -29,15 +29,17 @@ contract testSuite {
         acc1 = TestsAccounts.getAccount(1);
         Assert.equal(broker.getPrice(), 1, "Price not equal 1 wei");
         Assert.equal(token.accountBalance(address(broker)), 100000000000000000000, "Invalid balance");
+        
     }
 
     /// #sender: acc0
-    /// #value: 1
+    /// #value: 100
     function checkSuccess() public payable{
         Assert.equal(msg.sender, acc0, "Not the sender");
-        Assert.equal(msg.value, 1, "Value should be 100");
-        broker.buyTokens{gas: 800000, value:1};
-        Assert.equal(token.accountBalance(acc0), 0, "Not the same amount!");
+        Assert.equal(msg.value, 100, "Value should be 100");
+        broker.buyTokens{gas: 800000, value:100}(100);
+        Assert.equal(token.accountBalance(address(broker)), 0, "Invalid balance");
+        Assert.equal(token.accountBalance(address(acc0)), 100000000000000000000, "Not the same amount!");
     }
 
     //function checkSuccess2() public pure returns (bool) {
@@ -58,4 +60,3 @@ contract testSuite {
     //    Assert.equal(msg.value, 100, "Invalid value");
     //}
 }
-    
