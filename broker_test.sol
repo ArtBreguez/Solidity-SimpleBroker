@@ -20,8 +20,8 @@ contract testSuite {
     address acc0;
     address acc1;
 
-    /// 'beforeAll' runs before all other tests
-    function beforeAll() public {
+    /// 'before_all' runs before all other tests
+    function before_all() public {
         token = new ERC20Token("unit_test", "tst");
         broker = new TokenSale(IERC20Token(address(token)), 1);
         token.mint(address(broker), 100000000000000000000);
@@ -34,18 +34,16 @@ contract testSuite {
 
     /// #sender: acc0
     /// #value: 100
-    function checkSuccess() public payable{
-        Assert.equal(msg.sender, acc0, "Not the sender");
+    function check_if_tokens_has_been_sold() public payable{
         Assert.equal(msg.value, 100, "Value should be 100");
         broker.buyTokens{gas: 800000, value:100}(100);
+        Assert.equal(token.accountBalance(address(this)), 200000000000000000000, "Not the same amount!");
         Assert.equal(token.accountBalance(address(broker)), 0, "Invalid balance");
-        Assert.equal(token.accountBalance(acc0), 100000000000000000000, "Not the same amount!");
     }
 
-    //function checkSuccess2() public pure returns (bool) {
-    //    // Use the return value (true or false) to test the contract
-    //    return true;
-    //}
+    function check_if_tokens_has_been_discounted() public {
+        Assert.equal(token.accountBalance(address(broker)), 0, "Invalid balance");
+    }
     
     //function checkFailure() public {
     //    Assert.notEqual(uint(1), uint(1), "1 should not be equal to 1");
